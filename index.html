@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeVector Product Explorer</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-indigo-500/30">
+
+  <!-- Navigation Header -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-slate-900/80 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Title & Icon -->
+      <div class="flex items-center gap-3">
+        <div
+          class="bg-gradient-to-br from-indigo-500 to-purple-600 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-500/20">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+              d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+          </svg>
+        </div>
+        <span
+          class="font-bold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-indigo-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
+          CodeVector Product Explorer
+        </span>
+      </div>
+
+      <!-- Category Dropdown Filter -->
+      <div class="flex items-center gap-2.5">
+        <label for="categoryFilter" class="text-sm text-slate-400 font-medium hidden sm:inline">Category</label>
+        <div class="relative">
+          <select id="categoryFilter"
+            class="appearance-none bg-slate-800/90 border border-slate-700 hover:border-slate-600 text-slate-100 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block pl-4 pr-10 py-2.5 focus:outline-none transition-all cursor-pointer shadow-md">
+            <option value="All">All Categories</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Home">Home</option>
+            <option value="Books">Books</option>
+            <option value="Toys">Toys</option>
+            <option value="Sports">Sports</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Dashboard -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col justify-start">
+    <!-- Intro / Stats Banner -->
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h2 class="text-2xl font-bold text-slate-100 sm:text-3xl">Products Overview</h2>
+        <p class="text-sm text-slate-400 mt-1">Browse items stored in the backend using high-performance cursor
+          pagination.</p>
+      </div>
+      <div
+        class="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 bg-slate-800/50 border border-slate-700/50 rounded-full w-fit">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-slate-300">Connected to API Base</span>
+      </div>
+    </div>
+
+    <!-- State: Loading Spinner -->
+    <div id="loadingState" class="hidden flex flex-col items-center justify-center py-28 my-auto">
+      <div class="relative w-16 h-16">
+        <div class="absolute inset-0 rounded-full border-4 border-indigo-500/10"></div>
+        <div class="absolute inset-0 rounded-full border-4 border-t-indigo-500 animate-spin"></div>
+      </div>
+      <p class="mt-5 text-slate-400 text-sm font-medium tracking-wide animate-pulse">Retrieving product feed...</p>
+    </div>
+
+    <!-- State: Empty State -->
+    <div id="emptyState"
+      class="hidden flex flex-col items-center justify-center py-20 px-6 bg-slate-800/30 rounded-3xl border border-slate-800 border-dashed text-center max-w-md mx-auto my-auto shadow-xl">
+      <div class="p-4 bg-slate-800/80 text-slate-400 rounded-2xl mb-4 border border-slate-700">
+        <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-slate-200 mb-2">No products found</h3>
+      <p class="text-slate-400 text-sm mb-1">There are no products listed in this category at the moment.</p>
+      <p class="text-slate-500 text-xs">Verify your API has products matching this exact name.</p>
+    </div>
+
+    <!-- State: Error State -->
+    <div id="errorState"
+      class="hidden flex flex-col items-center justify-center py-16 px-6 bg-slate-900 border border-rose-500/20 text-center max-w-md mx-auto my-auto rounded-3xl shadow-xl shadow-rose-950/10">
+      <div class="p-4 bg-rose-500/10 text-rose-400 rounded-2xl mb-4 border border-rose-500/20">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-slate-100 mb-2">Network Request Failed</h3>
+      <p id="errorMessage" class="text-slate-400 text-sm mb-6">Unable to communicate with the product endpoint. Make
+        sure your server is running.</p>
+      <button id="retryBtn"
+        class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition-all">
+        Attempt Reconnection
+      </button>
+    </div>
+
+    <!-- State: Product Card Grid -->
+    <div id="productGrid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <!-- Cards dynamically inserted here -->
+    </div>
+
+    <!-- Footer Controls (Pagination) -->
+    <div id="paginationFooter" class="mt-12 mb-8 flex flex-col items-center gap-4 border-t border-slate-800 pt-8">
+      <div class="flex items-center gap-4">
+        <!-- Previous Page Button -->
+        <button id="prevBtn"
+          class="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 border border-slate-700 text-slate-200 text-sm font-medium rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+          </svg>
+          Previous
+        </button>
+
+        <!-- Current Page Indicator Badge -->
+        <span id="pageIndicator"
+          class="px-4 py-2.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-semibold rounded-xl tracking-wide min-w-[90px] text-center">
+          Page 1
+        </span>
+
+        <!-- Next Page Button -->
+        <button id="nextBtn"
+          class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-sm font-medium rounded-xl shadow-lg shadow-indigo-600/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+          Next Page
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- "No more products" Status Text -->
+      <div id="noMoreMessage"
+        class="hidden text-xs text-indigo-300/80 font-medium bg-indigo-500/5 px-4 py-2 rounded-full border border-indigo-500/10 tracking-wide animate-fade-in">
+        ✨ You've reached the end of the collection
+      </div>
+    </div>
+  </main>
+
+  <!-- Script Logic -->
+  <script>
+    // --- API Configuration ---
+    const API_BASE_URL = 'https://codevector-task-ic31.onrender.com';
+
+    // --- State Variables ---
+    const LIMIT = 8; // Fetch limit per page
+    let currentCategory = 'All';
+
+    // Store cursor history of each page to support backward navigation (Previous Page)
+    // Page 1 matches pageHistory[0] which uses no cursor filters.
+    let pageHistory = [{ cursor_date: null, cursor_id: null }];
+    let currentPageIndex = 0;
+
+    // Holds parameters for the NEXT page, received from current page response
+    let hasNextPage = false;
+    let nextCursorDate = null;
+    let nextCursorId = null;
+
+    let isLoading = false;
+
+    // --- DOM Elements ---
+    const categoryFilter = document.getElementById('categoryFilter');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageIndicator = document.getElementById('pageIndicator');
+    const noMoreMessage = document.getElementById('noMoreMessage');
+    const retryBtn = document.getElementById('retryBtn');
+    const productGrid = document.getElementById('productGrid');
+
+    // --- Category Specific Design Palettes & Icons ---
+    function getCategoryDesign(category) {
+      const normalized = (category || '').toLowerCase();
+      switch (normalized) {
+        case 'electronics':
+          return {
+            bg: 'from-blue-600 to-indigo-600',
+            badgeBg: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
+            icon: `<svg class="w-8 h-8 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>`
+          };
+        case 'clothing':
+          return {
+            bg: 'from-purple-600 to-pink-600',
+            badgeBg: 'bg-purple-500/10 text-purple-400 border border-purple-500/20',
+            icon: `<svg class="w-8 h-8 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15.586V8a2 2 0 00-2-2h-3.93a3 3 0 00-5.82 0H5.318a2 2 0 00-2 2v7.586a2 2 0 00.586 1.414l2.586 2.586A2 2 0 007.828 20h8.344a2 2 0 001.414-.586l2.586-2.586a2 2 0 00.586-1.414z"/></svg>`
+          };
+        case 'home':
+          return {
+            bg: 'from-emerald-600 to-teal-600',
+            badgeBg: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+            icon: `<svg class="w-8 h-8 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>`
+          };
+        case 'books':
+          return {
+            bg: 'from-amber-500 to-orange-600',
+            badgeBg: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
+            icon: `<svg class="w-8 h-8 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>`
+          };
+        case 'toys':
+          return {
+            bg: 'from-rose-500 to-red-600',
+            badgeBg: 'bg-rose-500/10 text-rose-400 border border-rose-500/20',
+            icon: `<svg class="w-8 h-8 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>`
+          };
+        case 'sports':
+          return {
+            bg: 'from-cyan-500 to-blue-600',
+            badgeBg: 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20',
+            icon: `<svg class="w-8 h-8 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>`
+          };
+        default:
+          return {
+            bg: 'from-slate-600 to-zinc-700',
+            badgeBg: 'bg-slate-500/10 text-slate-400 border border-slate-500/20',
+            icon: `<svg class="w-8 h-8 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`
+          };
+      }
+    }
+
+    // --- HTML Escaping Helper ---
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // --- Switch UI States ---
+    function showState(state) {
+      productGrid.classList.add('hidden');
+      document.getElementById('loadingState').classList.add('hidden');
+      document.getElementById('emptyState').classList.add('hidden');
+      document.getElementById('errorState').classList.add('hidden');
+
+      if (state === 'grid') {
+        productGrid.classList.remove('hidden');
+      } else if (state === 'loading') {
+        document.getElementById('loadingState').classList.remove('hidden');
+      } else if (state === 'empty') {
+        document.getElementById('emptyState').classList.remove('hidden');
+      } else if (state === 'error') {
+        document.getElementById('errorState').classList.remove('hidden');
+      }
+    }
+
+    // --- Fetch Products from API ---
+    async function fetchProducts() {
+      if (isLoading) return;
+      isLoading = true;
+      showState('loading');
+
+      // Update pagination control state during load
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+
+      // Construct request URL
+      const url = new URL(API_BASE_URL);
+
+      // Category filter
+      if (currentCategory && currentCategory !== 'All') {
+        url.searchParams.set('category', currentCategory);
+      }
+
+      // Page size limit
+      url.searchParams.set('limit', LIMIT);
+
+      // Apply cursor coordinates if loading page index > 0
+      const activeCursor = pageHistory[currentPageIndex];
+      if (activeCursor) {
+        if (activeCursor.cursor_date) {
+          url.searchParams.set('cursor_date', activeCursor.cursor_date);
+        }
+        if (activeCursor.cursor_id) {
+          url.searchParams.set('cursor_id', activeCursor.cursor_id);
+        }
+      }
+
+      try {
+        const response = await fetch(url.toString());
+        if (!response.ok) {
+          throw new Error(`Server returned status code: ${response.status}`);
+        }
+
+        const result = await response.json();
+        const data = result.data || [];
+        const pagination = result.pagination || {};
+
+        // Keep local trackers updated
+        hasNextPage = !!pagination.has_next_page;
+        nextCursorDate = pagination.next_cursor_date || null;
+        nextCursorId = pagination.next_cursor_id || null;
+
+        if (data.length === 0) {
+          showState('empty');
+        } else {
+          renderProducts(data);
+          showState('grid');
+        }
+
+        updatePaginationControls();
+      } catch (error) {
+        console.error('Fetch error:', error);
+        document.getElementById('errorMessage').textContent =
+          `Unable to retrieve products: ${error.message}. Verify that the backend is hosted at ${API_BASE_URL} and cross-origin resource sharing (CORS) is enabled.`;
+        showState('error');
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    // --- Render Product Grid HTML ---
+    function renderProducts(products) {
+      productGrid.innerHTML = '';
+
+      products.forEach(product => {
+        const design = getCategoryDesign(product.category);
+        const formattedPrice = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD'
+        }).format(product.price);
+
+        const formattedDate = new Date(product.created_at).toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+
+        const cardHtml = `
+          <div class="bg-slate-800/50 border border-slate-800/80 rounded-2xl overflow-hidden hover:border-slate-700 hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-300 flex flex-col group">
+            <!-- Dynamic Graphic Top Banner -->
+            <div class="h-32 bg-gradient-to-br ${design.bg} flex items-center justify-center relative overflow-hidden">
+              <div class="absolute inset-0 bg-white/5 backdrop-blur-[1px] transform -skew-y-12 scale-150 origin-top-left transition-transform group-hover:scale-175 duration-500"></div>
+              <div class="relative z-10 transition-transform group-hover:scale-110 duration-300">
+                ${design.icon}
+              </div>
+            </div>
+            
+            <!-- Information Block -->
+            <div class="p-5 flex-1 flex flex-col justify-between">
+              <div>
+                <!-- Category Pill -->
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wider uppercase mb-3 ${design.badgeBg}">
+                  ${product.category || 'Uncategorized'}
+                </span>
+                <!-- Name -->
+                <h4 class="text-base font-bold text-slate-100 group-hover:text-indigo-400 transition-colors duration-200 line-clamp-2 leading-snug">
+                  ${escapeHtml(product.name)}
+                </h4>
+              </div>
+              
+              <!-- Footer Row -->
+              <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                <!-- Price tag -->
+                <div class="text-lg font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                  ${formattedPrice}
+                </div>
+                
+                <!-- Created Date -->
+                <div class="flex items-center gap-1 text-[11px] text-slate-400 font-medium">
+                  <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  <span>${formattedDate}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        productGrid.insertAdjacentHTML('beforeend', cardHtml);
+      });
+    }
+
+    // --- Update Pagination UI Button States ---
+    function updatePaginationControls() {
+      // Toggle Previous page button
+      prevBtn.disabled = currentPageIndex === 0;
+
+      // Update page label
+      pageIndicator.textContent = `Page ${currentPageIndex + 1}`;
+
+      // Apply Next Page visual states based on cursor availability
+      if (hasNextPage) {
+        nextBtn.classList.remove('hidden');
+        nextBtn.disabled = false;
+        noMoreMessage.classList.add('hidden');
+      } else {
+        nextBtn.classList.add('hidden');
+        noMoreMessage.classList.remove('hidden');
+      }
+    }
+
+    // --- Event Listeners ---
+
+    // Category Select Handler
+    categoryFilter.addEventListener('change', (e) => {
+      currentCategory = e.target.value;
+
+      // Reset index configurations for page 1
+      pageHistory = [{ cursor_date: null, cursor_id: null }];
+      currentPageIndex = 0;
+      hasNextPage = false;
+      nextCursorDate = null;
+      nextCursorId = null;
+
+      fetchProducts();
+    });
+
+    // Next Page Click Handler
+    nextBtn.addEventListener('click', () => {
+      if (isLoading || !hasNextPage) return;
+
+      currentPageIndex++;
+
+      // Save cursor properties to search history array if not already present
+      if (currentPageIndex >= pageHistory.length) {
+        pageHistory.push({
+          cursor_date: nextCursorDate,
+          cursor_id: nextCursorId
+        });
+      }
+
+      fetchProducts();
+    });
+
+    // Previous Page Click Handler
+    prevBtn.addEventListener('click', () => {
+      if (isLoading || currentPageIndex === 0) return;
+
+      currentPageIndex--;
+      fetchProducts();
+    });
+
+    // Retry Button Handler
+    retryBtn.addEventListener('click', () => {
+      fetchProducts();
+    });
+
+    // Initialize Dashboard
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchProducts();
+    });
+  </script>
+</body>
+
+</html>
